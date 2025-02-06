@@ -23,7 +23,6 @@ def init_db():
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             birth_date TEXT,
-            profile_picture BLOB,
             instiution TEXT NOT NULL,
             department TEXT NOT NULL
         )
@@ -36,14 +35,14 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 # Create a new user
-def create_user(first_name, last_name, email, username, password, birth_date, profile_picture, institution, department):
+def create_user(first_name, last_name, email, username, password, birth_date, institution, department):
     conn = sqlite3.connect('user_accounts.db')
     c = conn.cursor()
     hashed_password = hash_password(password)
     c.execute('''
-        INSERT INTO users (first_name, last_name, email, username, password, birth_date, profile_picture, institution, department)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (first_name, last_name, email, username, hashed_password, birth_date, profile_picture, institution, department))
+        INSERT INTO users (first_name, last_name, email, username, password, birth_date, institution, department)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (first_name, last_name, email, username, hashed_password, birth_date, institution, department))
     conn.commit()
     conn.close()
 
@@ -135,8 +134,6 @@ def account_creation_page():
         password = st.text_input("Create password", type="password", placeholder="••••••••")
         
         birth_date = st.date_input("Date of birth", min_value=datetime(1900, 1, 1))
-        profile_picture = st.file_uploader("Profile picture", type=["jpg", "png"])
-    
         institution = st.text_input("Institution", placeholder="University of ?")
         department = st.text_input("Department", placeholder="Biochemistry")
         submitted = st.form_submit_button("Create Account")
@@ -146,7 +143,7 @@ def account_creation_page():
             st.error("Please fill in all required fields")
         else:
             try:
-                create_user(first_name, last_name, email, username, password, birth_date, profile_picture, institution, department)
+                create_user(first_name, last_name, email, username, password, birth_date, institution, department)
                 st.markdown("""
                 <div class="success-message">
                     <h3>🎉 Account Created Successfully!</h3>
